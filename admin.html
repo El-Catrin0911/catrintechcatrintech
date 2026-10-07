@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel de Administración - CatrinTech</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body style="background-color: var(--bg-light);">
+
+  <!-- MODAL DE ACCESO / LOGIN -->
+  <div id="loginModal" class="login-modal-overlay">
+    <div class="appointment-card login-card">
+      <div class="section-header" style="margin-bottom: 1.5rem;">
+        <span class="badge">Acceso Restringido</span>
+        <h2 style="font-size: 1.5rem;">Panel de Admin</h2>
+        <p style="font-size: 0.9rem;">Ingresa la contraseña para continuar.</p>
+      </div>
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="adminPassword">Contraseña</label>
+          <input type="password" id="adminPassword" placeholder="••••••••" required>
+        </div>
+        <p id="loginError" style="color: #ef4444; font-size: 0.85rem; margin-bottom: 1rem; display: none;">Contraseña incorrecta. Inténtalo de nuevo.</p>
+        <button type="submit" class="btn btn-primary btn-block">Ingresar</button>
+      </form>
+      <div style="text-align: center; margin-top: 1rem;">
+        <a href="index.html" style="font-size: 0.85rem; color: var(--text-muted); text-decoration: none;">← Volver al sitio principal</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL PRINCIPAL -->
+  <div id="adminPanelContent" class="hidden">
+    
+    <!-- NAV ADMIN -->
+    <nav class="navbar">
+      <div class="container nav-container">
+        <div class="logo">
+          <a href="admin.html">Catrin<span>Tech</span> <small style="font-size: 0.75rem; color: var(--text-muted); font-weight: normal;">| Admin CRM</small></a>
+        </div>
+        <ul class="nav-links">
+          <li><button id="btnLogout" class="btn-nav" style="background-color: #ef4444; border: none; cursor: pointer;">Cerrar Sesión</button></li>
+          <li><a href="index.html" class="btn-nav" style="background-color: var(--dark-light);">← Volver al Sitio</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- CONTENIDO ADMIN -->
+    <section class="section">
+      <div class="container">
+        <div class="section-header" style="text-align: left; margin-bottom: 2rem;">
+          <span class="badge">Gestión Interna & CRM</span>
+          <h2>Panel de Citas y Proyectos</h2>
+          <p>Administra los horarios de atención, cambia el estado de los proyectos y gestiona tus notas internas.</p>
+        </div>
+
+        <!-- CONFIGURACIÓN DE HORARIOS Y DÍAS -->
+        <div class="appointment-card" style="max-width: 100%; padding: 2rem; margin-bottom: 2rem;">
+          <h3 style="color: var(--dark); font-size: 1.2rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">⚙️ Horarios y Días Laborales</h3>
+          
+          <form id="scheduleSettingsForm">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="workStart">Hora de inicio de atención</label>
+                <input type="time" id="workStart" value="09:00">
+              </div>
+              <div class="form-group">
+                <label for="workEnd">Hora de cierre de atención</label>
+                <input type="time" id="workEnd" value="18:00">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Días laborales activos</label>
+              <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 0.5rem;">
+                <label style="font-weight: normal;"><input type="checkbox" name="workDays" value="1" checked> Lunes</label>
+                <label style="font-weight: normal;"><input type="checkbox" name="workDays" value="2" checked> Martes</label>
+                <label style="font-weight: normal;"><input type="checkbox" name="workDays" value="3" checked> Miércoles</label>
+                <label style="font-weight: normal;"><input type="checkbox" name="workDays" value="4" checked> Jueves</label>
+                <label style="font-weight: normal;"><input type="checkbox" name="workDays" value="5" checked> Viernes</label>
+                <label style="font-weight: normal;"><input type="checkbox" name="workDays" value="6"> Sábado</label>
+                <label style="font-weight: normal;"><input type="checkbox" name="workDays" value="0"> Domingo</label>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="blockedDate">Bloquear un día específico (ej. día festivo)</label>
+              <div style="display: flex; gap: 1rem;">
+                <input type="date" id="blockedDate">
+                <button type="button" id="btnBlockDate" class="btn btn-secondary" style="background: var(--dark); color: #fff; white-space: nowrap;">Bloquear Fecha</button>
+              </div>
+            </div>
+
+            <div id="blockedDatesContainer" style="margin-top: 0.5rem;">
+              <small style="color: var(--text-muted);">Fechas bloqueadas actualmente:</small>
+              <ul id="blockedDatesList" style="list-style: none; margin-top: 0.5rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                <!-- Se cargan dinámicamente -->
+              </ul>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="margin-top: 1.5rem;">Guardar Configuración de Horario</button>
+          </form>
+        </div>
+
+        <!-- CITAS Y CRM DE PROYECTOS -->
+        <div class="appointment-card" style="max-width: 100%; padding: 2rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem;">
+            <h3 style="color: var(--dark); font-size: 1.2rem;">📂 Gestión de Citas y Proyectos</h3>
+          </div>
+
+          <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem; text-align: left;">
+              <thead>
+                <tr style="border-bottom: 2px solid var(--border); color: var(--dark);">
+                  <th style="padding: 0.75rem;">Cliente / Contacto</th>
+                  <th style="padding: 0.75rem;">Servicio & Fecha</th>
+                  <th style="padding: 0.75rem;">Ubicación / Maps</th>
+                  <th style="padding: 0.75rem;">Estado</th>
+                  <th style="padding: 0.75rem;">Trato Cerrado</th>
+                  <th style="padding: 0.75rem;">Documentación & Notas Internas</th>
+                  <th style="padding: 0.75rem; text-align: center;">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="adminCitasTableBody">
+                <!-- Se cargan dinámicamente desde localStorage -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- FOOTER ADMIN -->
+    <footer class="footer" style="margin-top: 4rem;">
+      <div class="container footer-bottom" style="border: none; padding-top: 0;">
+        <p>&copy; 2026 CatrinTech - Sistema de Administración Interna.</p>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    // --- AUTENTICACIÓN ---
+    const ADMIN_PASSWORD = "admin123"; 
+
+    const loginModal = document.getElementById('loginModal');
+    const adminPanelContent = document.getElementById('adminPanelContent');
+    const loginForm = document.getElementById('loginForm');
+    const loginError = document.getElementById('loginError');
+    const btnLogout = document.getElementById('btnLogout');
+
+    if (sessionStorage.getItem('catrinAdminAuth') === 'true') {
+      showPanel();
+    }
+
+    loginForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const inputPass = document.getElementById('adminPassword').value;
+      if (inputPass === ADMIN_PASSWORD) {
+        sessionStorage.setItem('catrinAdminAuth', 'true');
+        showPanel();
+      } else {
+        loginError.style.display = 'block';
+      }
+    });
+
+    btnLogout.addEventListener('click', () => {
+      sessionStorage.removeItem('catrinAdminAuth');
+      location.reload();
+    });
+
+    function showPanel() {
+      loginModal.style.display = 'none';
+      adminPanelContent.classList.remove('hidden');
+      loadScheduleSettings();
+      renderCitasTable();
+    }
+
+    // --- GESTIÓN DE HORARIOS Y DÍAS ---
+    const scheduleForm = document.getElementById('scheduleSettingsForm');
+
+    function loadScheduleSettings() {
+      const settings = JSON.parse(localStorage.getItem('catrinScheduleSettings')) || {
+        startTime: "09:00",
+        endTime: "18:00",
+        workDays: [1, 2, 3, 4, 5]
+      };
+
+      document.getElementById('workStart').value = settings.startTime;
+      document.getElementById('workEnd').value = settings.endTime;
+
+      const checkboxes = document.querySelectorAll('input[name="workDays"]');
+      checkboxes.forEach(cb => {
+        cb.checked = settings.workDays.includes(parseInt(cb.value));
+      });
+    }
+
+    scheduleForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const startTime = document.getElementById('workStart').value;
+      const endTime = document.getElementById('workEnd').value;
+      
+      const selectedDays = [];
+      document.querySelectorAll('input[name="workDays"]:checked').forEach(cb => {
+        selectedDays.push(parseInt(cb.value));
+      });
+
+      const newSettings = { startTime, endTime, workDays: selectedDays };
+      localStorage.setItem('catrinScheduleSettings', JSON.stringify(newSettings));
+
+      alert('¡Configuración de horario guardada con éxito!');
+    });
+
+    // --- FECHAS BLOQUEADAS ---
+    let blockedDates = JSON.parse(localStorage.getItem('catrinBlockedDates')) || [];
+    const blockedDatesList = document.getElementById('blockedDatesList');
+    const btnBlockDate = document.getElementById('btnBlockDate');
+    const blockedDateInput = document.getElementById('blockedDate');
+
+    function renderBlockedDates() {
+      blockedDatesList.innerHTML = '';
+      if (blockedDates.length === 0) {
+        blockedDatesList.innerHTML = '<li style="font-size:0.85rem; color:var(--text-muted);">Ninguna fecha bloqueada.</li>';
+        return;
+      }
+      blockedDates.forEach((date, index) => {
+        const li = document.createElement('li');
+        li.style.cssText = 'background:#e2e8f0; padding:0.2rem 0.6rem; border-radius:6px; font-size:0.85rem; display:flex; align-items:center; gap:0.5rem;';
+        li.innerHTML = `${date} <span style="cursor:pointer; color:#ef4444; font-weight:bold;" onclick="removeBlockedDate(${index})">&times;</span>`;
+        blockedDatesList.appendChild(li);
+      });
+    }
+
+    btnBlockDate.addEventListener('click', () => {
+      const val = blockedDateInput.value;
+      if (val && !blockedDates.includes(val)) {
+        blockedDates.push(val);
+        localStorage.setItem('catrinBlockedDates', JSON.stringify(blockedDates));
+        renderBlockedDates();
+        blockedDateInput.value = '';
+      }
+    });
+
+    window.removeBlockedDate = function(index) {
+      blockedDates.splice(index, 1);
+      localStorage.setItem('catrinBlockedDates', JSON.stringify(blockedDates));
+      renderBlockedDates();
+    };
+
+    renderBlockedDates();
+
+    // --- TABLA DE CITAS / CRM DE PROYECTOS ---
+    function renderCitasTable() {
+      const tableBody = document.getElementById('adminCitasTableBody');
+      const citas = JSON.parse(localStorage.getItem('catrinTechCitas')) || [];
+
+      tableBody.innerHTML = '';
+
+      if (citas.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="7" style="padding: 1.5rem; text-align: center; color: var(--text-muted);">No hay citas ni proyectos registrados aún.</td></tr>';
+        return;
+      }
+
+      citas.forEach((c, index) => {
+        const estado = c.estado || "Pendiente";
+        const tratoCerrado = c.tratoCerrado || false;
+        const notasInternas = c.notasInternas || "";
+        const mapsLinkHtml = c.mapsLink ? `<a href="${c.mapsLink}" target="_blank" style="color: var(--primary); text-decoration: underline;">🗺️ Ver mapa</a>` : '<span style="color:var(--text-muted);">N/A</span>';
+
+        const tr = document.createElement('tr');
+        tr.style.borderBottom = '1px solid var(--border)';
+        tr.innerHTML = `
+          <td style="padding: 1rem 0.75rem; vertical-align: top;">
+            <strong>${c.nombre}</strong><br>
+            <small style="color: var(--text-muted);">${c.email}</small><br>
+            <small style="color: var(--text-muted);">📞 ${c.telefono}</small>
+          </td>
+
+          <td style="padding: 1rem 0.75rem; vertical-align: top;">
+            <strong>${c.servicio}</strong><br>
+            <small style="color: var(--text-muted);">📅 ${c.fecha} a las ${c.hora} hrs</small><br>
+            <small style="color: var(--text-muted); font-style: italic;">"${c.mensaje || 'Sin nota de cliente'}"</small>
+          </td>
+
+          <td style="padding: 1rem 0.75rem; vertical-align: top;">
+            ${mapsLinkHtml}
+          </td>
+
+          <td style="padding: 1rem 0.75rem; vertical-align: top;">
+            <select onchange="updateCitaEstado(${index}, this.value)" style="padding: 0.3rem 0.5rem; font-size: 0.85rem; border-radius: 6px;">
+              <option value="Pendiente" ${estado === 'Pendiente' ? 'selected' : ''}>⏳ Pendiente</option>
+              <option value="Confirmada" ${estado === 'Confirmada' ? 'selected' : ''}>✅ Confirmada</option>
+              <option value="Completada" ${estado === 'Completada' ? 'selected' : ''}>🎉 Completada</option>
+              <option value="Cancelada" ${estado === 'Cancelada' ? 'selected' : ''}>❌ Cancelada</option>
+            </select>
+          </td>
+
+          <td style="padding: 1rem 0.75rem; vertical-align: top; text-align: center;">
+            <input type="checkbox" ${tratoCerrado ? 'checked' : ''} onchange="updateCitaTrato(${index}, this.checked)" style="width: 18px; height: 18px; cursor: pointer;">
+            <br><small style="font-size: 0.75rem; color: ${tratoCerrado ? 'var(--primary)' : 'var(--text-muted)'}; font-weight: bold;">
+              ${tratoCerrado ? '🤝 Trato Hecho' : 'En proceso'}
+            </small>
+          </td>
+
+          <td style="padding: 1rem 0.75rem; vertical-align: top;">
+            <textarea placeholder="Notas del proyecto, cotización, enlaces de Drive/NDA..." rows="2" 
+                      style="font-size: 0.85rem; padding: 0.4rem; resize: vertical;" 
+                      onchange="updateCitaNotas(${index}, this.value)">${notasInternas}</textarea>
+          </td>
+
+          <td style="padding: 1rem 0.75rem; vertical-align: top; text-align: center;">
+            <button onclick="deleteCita(${index})" style="background: #ef4444; color: #fff; border: none; padding: 0.3rem 0.6rem; border-radius: 6px; cursor: pointer; font-size: 0.8rem;">
+              🗑️ Eliminar
+            </button>
+          </td>
+        `;
+        tableBody.appendChild(tr);
+      });
+    }
+
+    // --- FUNCIONES HELPER CRM ---
+    window.updateCitaEstado = function(index, nuevoEstado) {
+      let citas = JSON.parse(localStorage.getItem('catrinTechCitas')) || [];
+      citas[index].estado = nuevoEstado;
+      localStorage.setItem('catrinTechCitas', JSON.stringify(citas));
+    };
+
+    window.updateCitaTrato = function(index, tratoCerrado) {
+      let citas = JSON.parse(localStorage.getItem('catrinTechCitas')) || [];
+      citas[index].tratoCerrado = tratoCerrado;
+      localStorage.setItem('catrinTechCitas', JSON.stringify(citas));
+      renderCitasTable();
+    };
+
+    window.updateCitaNotas = function(index, nuevasNotas) {
+      let citas = JSON.parse(localStorage.getItem('catrinTechCitas')) || [];
+      citas[index].notasInternas = nuevasNotas;
+      localStorage.setItem('catrinTechCitas', JSON.stringify(citas));
+    };
+
+    window.deleteCita = function(index) {
+      if (confirm('¿Estás seguro de eliminar este registro/cita?')) {
+        let citas = JSON.parse(localStorage.getItem('catrinTechCitas')) || [];
+        citas.splice(index, 1);
+        localStorage.setItem('catrinTechCitas', JSON.stringify(citas));
+        renderCitasTable();
+      }
+    };
+  </script>
+</body>
+</html>
