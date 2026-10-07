@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Panel de Administración - CatrinTech</title>
+  <title>Panel de Administración - TonalliTech</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -42,7 +42,7 @@
     <nav class="navbar">
       <div class="container nav-container">
         <div class="logo">
-          <a href="admin.html">Catrin<span>Tech</span> <small style="font-size: 0.75rem; color: var(--text-muted); font-weight: normal;">| Admin CRM</small></a>
+          <a href="admin.html">Tonalli<span>Tech</span> <small style="font-size: 0.75rem; color: var(--text-muted); font-weight: normal;">| Admin CRM</small></a>
         </div>
         <ul class="nav-links">
           <li><button id="btnLogout" class="btn-nav" style="background-color: #ef4444; border: none; cursor: pointer;">Cerrar Sesión</button></li>
@@ -140,14 +140,14 @@
     <!-- FOOTER ADMIN -->
     <footer class="footer" style="margin-top: 4rem;">
       <div class="container footer-bottom" style="border: none; padding-top: 0;">
-        <p>&copy; 2026 CatrinTech - Sistema de Administración Interna.</p>
+        <p>&copy; 2026 TonalliTech - Sistema de Administración Interna.</p>
       </div>
     </footer>
   </div>
 
   <script>
     // --- AUTENTICACIÓN ---
-    const ADMIN_PASSWORD = "Fox1654"; 
+    const ADMIN_PASSWORD = "admin123"; 
 
     const loginModal = document.getElementById('loginModal');
     const adminPanelContent = document.getElementById('adminPanelContent');
@@ -155,7 +155,7 @@
     const loginError = document.getElementById('loginError');
     const btnLogout = document.getElementById('btnLogout');
 
-    if (sessionStorage.getItem('catrinAdminAuth') === 'true') {
+    if (sessionStorage.getItem('tonalliAdminAuth') === 'true') {
       showPanel();
     }
 
@@ -163,7 +163,7 @@
       e.preventDefault();
       const inputPass = document.getElementById('adminPassword').value;
       if (inputPass === ADMIN_PASSWORD) {
-        sessionStorage.setItem('catrinAdminAuth', 'true');
+        sessionStorage.setItem('tonalliAdminAuth', 'true');
         showPanel();
       } else {
         loginError.style.display = 'block';
@@ -171,7 +171,7 @@
     });
 
     btnLogout.addEventListener('click', () => {
-      sessionStorage.removeItem('catrinAdminAuth');
+      sessionStorage.removeItem('tonalliAdminAuth');
       location.reload();
     });
 
@@ -186,7 +186,7 @@
     const scheduleForm = document.getElementById('scheduleSettingsForm');
 
     function loadScheduleSettings() {
-      const settings = JSON.parse(localStorage.getItem('catrinScheduleSettings')) || {
+      const settings = JSON.parse(localStorage.getItem('tonalliScheduleSettings')) || {
         startTime: "09:00",
         endTime: "18:00",
         workDays: [1, 2, 3, 4, 5]
@@ -213,13 +213,13 @@
       });
 
       const newSettings = { startTime, endTime, workDays: selectedDays };
-      localStorage.setItem('catrinScheduleSettings', JSON.stringify(newSettings));
+      localStorage.setItem('tonalliScheduleSettings', JSON.stringify(newSettings));
 
       alert('¡Configuración de horario guardada con éxito!');
     });
 
     // --- FECHAS BLOQUEADAS ---
-    let blockedDates = JSON.parse(localStorage.getItem('catrinBlockedDates')) || [];
+    let blockedDates = JSON.parse(localStorage.getItem('tonalliBlockedDates')) || [];
     const blockedDatesList = document.getElementById('blockedDatesList');
     const btnBlockDate = document.getElementById('btnBlockDate');
     const blockedDateInput = document.getElementById('blockedDate');
@@ -242,7 +242,7 @@
       const val = blockedDateInput.value;
       if (val && !blockedDates.includes(val)) {
         blockedDates.push(val);
-        localStorage.setItem('catrinBlockedDates', JSON.stringify(blockedDates));
+        localStorage.setItem('tonalliBlockedDates', JSON.stringify(blockedDates));
         renderBlockedDates();
         blockedDateInput.value = '';
       }
@@ -250,7 +250,7 @@
 
     window.removeBlockedDate = function(index) {
       blockedDates.splice(index, 1);
-      localStorage.setItem('catrinBlockedDates', JSON.stringify(blockedDates));
+      localStorage.setItem('tonalliBlockedDates', JSON.stringify(blockedDates));
       renderBlockedDates();
     };
 
@@ -259,7 +259,7 @@
     // --- TABLA DE CITAS / CRM DE PROYECTOS ---
     function renderCitasTable() {
       const tableBody = document.getElementById('adminCitasTableBody');
-      const citas = JSON.parse(localStorage.getItem('catrinTechCitas')) || [];
+      const citas = JSON.parse(localStorage.getItem('tonalliTechCitas')) || [];
 
       tableBody.innerHTML = '';
 
@@ -327,32 +327,35 @@
 
     // --- FUNCIONES HELPER CRM ---
     window.updateCitaEstado = function(index, nuevoEstado) {
-      let citas = JSON.parse(localStorage.getItem('catrinTechCitas')) || [];
+      let citas = JSON.parse(localStorage.getItem('tonalliTechCitas')) || [];
       citas[index].estado = nuevoEstado;
-      localStorage.setItem('catrinTechCitas', JSON.stringify(citas));
+      localStorage.setItem('tonalliTechCitas', JSON.stringify(citas));
     };
 
     window.updateCitaTrato = function(index, tratoCerrado) {
-      let citas = JSON.parse(localStorage.getItem('catrinTechCitas')) || [];
+      let citas = JSON.parse(localStorage.getItem('tonalliTechCitas')) || [];
       citas[index].tratoCerrado = tratoCerrado;
-      localStorage.setItem('catrinTechCitas', JSON.stringify(citas));
+      localStorage.setItem('tonalliTechCitas', JSON.stringify(citas));
       renderCitasTable();
     };
 
     window.updateCitaNotas = function(index, nuevasNotas) {
-      let citas = JSON.parse(localStorage.getItem('catrinTechCitas')) || [];
+      let citas = JSON.parse(localStorage.getItem('tonalliTechCitas')) || [];
       citas[index].notasInternas = nuevasNotas;
-      localStorage.setItem('catrinTechCitas', JSON.stringify(citas));
+      localStorage.setItem('tonalliTechCitas', JSON.stringify(citas));
     };
 
     window.deleteCita = function(index) {
       if (confirm('¿Estás seguro de eliminar este registro/cita?')) {
-        let citas = JSON.parse(localStorage.getItem('catrinTechCitas')) || [];
+        let citas = JSON.parse(localStorage.getItem('tonalliTechCitas')) || [];
         citas.splice(index, 1);
-        localStorage.setItem('catrinTechCitas', JSON.stringify(citas));
+        localStorage.setItem('tonalliTechCitas', JSON.stringify(citas));
         renderCitasTable();
       }
     };
+  </script>
+</body>
+</html>
   </script>
 </body>
 </html>
