@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-  // NÚMERO DE WHATSAPP DE CATRINTECH
+  // NÚMERO DE WHATSAPP DE TONALLITECH
   const TELEFONO_WHATSAPP = "527712029400";
 
   // CONFIGURACIÓN POR DEFECTO DE HORARIOS
@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- 1. AVISO DE HORARIO EN FORMULARIO ---
   const availabilityNotice = document.getElementById('availabilityNotice');
-  const settings = JSON.parse(localStorage.getItem('catrinScheduleSettings')) || DEFAULT_SETTINGS;
+  const settings = JSON.parse(localStorage.getItem('tonalliScheduleSettings')) || DEFAULT_SETTINGS;
 
   if (availabilityNotice) {
     const daysNames = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
@@ -51,8 +51,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const mapsLink = document.getElementById('mapsLink').value;
       const mensaje = document.getElementById('mensaje').value;
 
-      const currentSettings = JSON.parse(localStorage.getItem('catrinScheduleSettings')) || DEFAULT_SETTINGS;
-      const currentBlockedDates = JSON.parse(localStorage.getItem('catrinBlockedDates')) || [];
+      const currentSettings = JSON.parse(localStorage.getItem('tonalliScheduleSettings')) || DEFAULT_SETTINGS;
+      const currentBlockedDates = JSON.parse(localStorage.getItem('tonalliBlockedDates')) || [];
 
       // Validaciones de horario
       if (currentBlockedDates.includes(fecha)) {
@@ -90,9 +90,9 @@ document.addEventListener('DOMContentLoaded', () => {
       };
 
       // Guardar en localStorage
-      let citasGuardadas = JSON.parse(localStorage.getItem('catrinTechCitas')) || [];
+      let citasGuardadas = JSON.parse(localStorage.getItem('tonalliTechCitas')) || [];
       citasGuardadas.push(citaData);
-      localStorage.setItem('catrinTechCitas', JSON.stringify(citasGuardadas));
+      localStorage.setItem('tonalliTechCitas', JSON.stringify(citasGuardadas));
 
       confirmationDetails.innerHTML = `Gracias <strong>${nombre}</strong>, tu cita para <strong>${servicio}</strong> quedó agendada el día <strong>${fecha}</strong> a las <strong>${hora} hrs</strong>.`;
 
@@ -109,7 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const mapsPart = citaData.mapsLink ? `\n📍 *Ubicación Maps:* ${citaData.mapsLink}` : '';
 
       const textoMsg = 
-`Hola *CatrinTech*, acabo de agendar una cita en su página web:
+`Hola *TonalliTech*, acabo de agendar una cita en su página web:
 
 👤 *Nombre:* ${citaData.nombre}
 📧 *Email:* ${citaData.email}
