@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Panel de Administración - TonalliTech</title>
   
+  <!-- Favicon para la pestaña del navegador -->
+  <link rel="icon" type="image/png" href="logo-icon.png">
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -15,14 +18,17 @@
 
   <!-- MODAL DE ACCESO / LOGIN -->
   <div id="loginModal" class="login-modal-overlay">
-    <div class="appointment-card login-card">
+    <div class="appointment-card login-card" style="text-align: center;">
+      <div style="margin-bottom: 1.2rem; display: flex; justify-content: center;">
+        <img src="logo.png" alt="TonalliTech" style="height: 50px; width: auto; object-fit: contain;">
+      </div>
       <div class="section-header" style="margin-bottom: 1.5rem;">
         <span class="badge">Acceso Restringido</span>
         <h2 style="font-size: 1.5rem;">Panel de Admin</h2>
         <p style="font-size: 0.9rem;">Ingresa la contraseña para continuar.</p>
       </div>
       <form id="loginForm">
-        <div class="form-group">
+        <div class="form-group" style="text-align: left;">
           <label for="adminPassword">Contraseña</label>
           <input type="password" id="adminPassword" placeholder="••••••••" required>
         </div>
@@ -42,7 +48,10 @@
     <nav class="navbar">
       <div class="container nav-container">
         <div class="logo">
-          <a href="admin.html">Tonalli<span>Tech</span> <small style="font-size: 0.75rem; color: var(--text-muted); font-weight: normal;">| Admin CRM</small></a>
+          <a href="admin.html" style="display: flex; align-items: center; gap: 10px; text-decoration: none;">
+            <img src="logo.png" alt="TonalliTech Logo" style="height: 38px; width: auto; object-fit: contain;">
+            <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: normal;">| Admin CRM</span>
+          </a>
         </div>
         <ul class="nav-links">
           <li><button id="btnLogout" class="btn-nav" style="background-color: #ef4444; border: none; cursor: pointer;">Cerrar Sesión</button></li>
@@ -353,9 +362,6 @@
         renderCitasTable();
       }
     };
-  </script>
-</body>
-</html>
   </script>
 </body>
 </html>
