@@ -1,4 +1,6 @@
-// --- CONFIGURACIÓN DE FIREBASE ---
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
 const firebaseConfig = {
   apiKey: "AIzaSyALRCCnncQw9gna2qO4Ide9BOFLuLWXmdU",
   authDomain: "tonallitech-51348.firebaseapp.com",
@@ -9,11 +11,8 @@ const firebaseConfig = {
   appId: "1:879533126682:web:c4a4baa7dad6b5e4ba8da3"
 };
 
-// Inicializar Firebase
-if (!firebase.apps.length) {
-  firebase.initializeApp(firebaseConfig);
-}
-const db = firebase.database();
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
 
 document.addEventListener('DOMContentLoaded', () => {
   const TELEFONO_WHATSAPP = "527712029400";
@@ -24,7 +23,6 @@ document.addEventListener('DOMContentLoaded', () => {
     workDays: [1, 2, 3, 4, 5]
   };
 
-  // --- 1. AVISO DE HORARIO EN FORMULARIO ---
   const availabilityNotice = document.getElementById('availabilityNotice');
   const settings = JSON.parse(localStorage.getItem('tonalliScheduleSettings')) || DEFAULT_SETTINGS;
 
@@ -34,15 +32,12 @@ document.addEventListener('DOMContentLoaded', () => {
     availabilityNotice.innerHTML = `🕒 <strong>Horario de atención:</strong> ${settings.startTime} a ${settings.endTime} hrs (${activeDaysNames || 'Sin días configurados'})`;
   }
 
-  // --- 2. FAQ ACORDEÓN ---
   document.querySelectorAll('.faq-question').forEach(button => {
-    button.addEventListener('click', (e) => {
-      e.preventDefault();
+    button.addEventListener('click', () => {
       button.parentElement.classList.toggle('active');
     });
   });
 
-  // --- 3. FORMULARIO DE AGENDAR CITA ---
   const form = document.getElementById('appointmentForm');
   const confirmationBox = document.getElementById('confirmationBox');
   const confirmationDetails = document.getElementById('confirmationDetails');
@@ -54,7 +49,6 @@ document.addEventListener('DOMContentLoaded', () => {
   if (form) {
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      e.stopPropagation();
 
       const nombre = document.getElementById('nombre').value;
       const email = document.getElementById('email').value;
@@ -68,26 +62,23 @@ document.addEventListener('DOMContentLoaded', () => {
       const currentSettings = JSON.parse(localStorage.getItem('tonalliScheduleSettings')) || DEFAULT_SETTINGS;
       const currentBlockedDates = JSON.parse(localStorage.getItem('tonalliBlockedDates')) || [];
 
-      // Validar si la fecha está bloqueada
       if (currentBlockedDates.includes(fecha)) {
         alert('🚫 Lo sentimos, la fecha seleccionada está bloqueada. Por favor elige otro día.');
-        return false;
+        return;
       }
 
-      // Validar día de la semana
       const dateParts = fecha.split('-');
       const selectedDate = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]);
       const dayOfWeek = selectedDate.getDay();
 
       if (!currentSettings.workDays.includes(dayOfWeek)) {
         alert('📅 No atendemos citas en el día de la semana seleccionado. Por favor revisa nuestros días laborales.');
-        return false;
+        return;
       }
 
-      // Validar hora de atención
       if (hora < currentSettings.startTime || hora > currentSettings.endTime) {
         alert(`⏰ La hora seleccionada está fuera de nuestro horario laboral (${currentSettings.startTime} a ${currentSettings.endTime} hrs).`);
-        return false;
+        return;
       }
 
       citaGlobalData = { 
@@ -106,25 +97,20 @@ document.addEventListener('DOMContentLoaded', () => {
       };
 
       try {
-        // Guardar la cita en Firebase Realtime Database en tiempo real
-        await db.ref('citas').push(citaGlobalData);
+        const citasRef = ref(db, 'citas');
+        await push(citasRef, citaGlobalData);
 
-        // Actualizar la interfaz de usuario
         confirmationDetails.innerHTML = `Gracias <strong>${nombre}</strong>, tu cita para <strong>${servicio}</strong> quedó registrada el día <strong>${fecha}</strong> a las <strong>${hora} hrs</strong>.`;
 
         form.classList.add('hidden');
         confirmationBox.classList.remove('hidden');
 
-        // Abrir WhatsApp con la información prellenada
         enviarCitaPorWhatsApp(citaGlobalData);
-
-      } catch (err) {
-        console.error("Error guardando cita:", err);
-        alert("Ocurrió un inconveniente conectando con la nube, pero abriremos tu WhatsApp para confirmar tu cita directamente.");
+      } catch (error) {
+        console.error("Error al guardar en Firebase:", error);
+        alert("Ocurrió un detalle al sincronizar con la nube, pero te abriremos WhatsApp para confirmar tu cita.");
         enviarCitaPorWhatsApp(citaGlobalData);
       }
-
-      return false;
     });
   }
 
@@ -138,15 +124,13 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   if (btnSendWhatsApp) {
-    btnSendWhatsApp.addEventListener('click', (e) => {
-      e.preventDefault();
+    btnSendWhatsApp.addEventListener('click', () => {
       enviarCitaPorWhatsApp(citaGlobalData);
     });
   }
 
   if (btnReset) {
-    btnReset.addEventListener('click', (e) => {
-      e.preventDefault();
+    btnReset.addEventListener('click', () => {
       form.reset();
       citaGlobalData = {};
       confirmationBox.classList.add('hidden');
