@@ -10,6 +10,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
+
+  <!-- SDKs FIREBASE (COMPAT) -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 </head>
 <body style="background-color: var(--bg-light);">
 
@@ -60,12 +64,12 @@
         <div class="section-header" style="text-align: left; margin-bottom: 2rem;">
           <span class="badge">Gestión Interna en la Nube</span>
           <h2>Panel de Citas y Proyectos</h2>
-          <p>Administra los horarios de atención, bloquea fechas festivas y controla todas tus citas sincronizadas.</p>
+          <p>Administra los horarios de atención, bloquea fechas festivas y controla todas tus citas sincronizadas en tiempo real.</p>
         </div>
 
         <!-- BOTÓN REGISTRO MANUAL WHATSAPP -->
         <div style="margin-bottom: 1.5rem;">
-          <button onclick="promptManualCita()" class="btn btn-primary" style="background: #10b981; border: none;">
+          <button id="btnManualCita" class="btn btn-primary" style="background: #10b981; border: none;">
             ➕ Registrar cita manualmente (recibida por WhatsApp)
           </button>
         </div>
@@ -119,7 +123,7 @@
         <!-- TABLA DE CITAS EN TIEMPO REAL -->
         <div class="appointment-card" style="max-width: 100%; padding: 2rem;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem;">
-            <h3 style="color: var(--dark); font-size: 1.2rem;">📂 Gestión de Citas y Proyectos</h3>
+            <h3 style="color: var(--dark); font-size: 1.2rem;">📂 Gestión de Citas y Proyectos (Sincronizado)</h3>
           </div>
 
           <div style="overflow-x: auto;">
@@ -145,11 +149,7 @@
     </section>
   </div>
 
-  <!-- SCRIPT DE FIREBASE Y GESTIÓN ADMIN -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getDatabase, ref, onValue, update, remove, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-
+  <script>
     const firebaseConfig = {
       apiKey: "AIzaSyALRCCnncQw9gna2qO4Ide9BOFLuLWXmdU",
       authDomain: "tonallitech-51348.firebaseapp.com",
@@ -157,12 +157,13 @@
       projectId: "tonallitech-51348",
       storageBucket: "tonallitech-51348.firebasestorage.app",
       messagingSenderId: "879533126682",
-      appId: "1:879533126682:web:c4a4baa7dad6b5e4ba8da3",
-      measurementId: "G-NKQMG6MY7W"
+      appId: "1:879533126682:web:c4a4baa7dad6b5e4ba8da3"
     };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.database();
 
     const ADMIN_PASSWORD = "admin123";
     const loginModal = document.getElementById('loginModal');
@@ -196,8 +197,8 @@
       escucharCitasEnTiempoReal();
     }
 
-    // --- REGISTRO MANUAL DE WHATSAPP ---
-    window.promptManualCita = async function() {
+    // --- REGISTRO MANUAL WHATSAPP ---
+    document.getElementById('btnManualCita').addEventListener('click', () => {
       const nombre = prompt("Nombre del cliente:");
       if (!nombre) return;
       const telefono = prompt("Teléfono / WhatsApp:");
@@ -221,13 +222,10 @@
         timestamp: Date.now()
       };
 
-      try {
-        await push(ref(db, 'citas'), nuevaCita);
-        alert("¡Cita agregada exitosamente a la nube!");
-      } catch (err) {
-        alert("Error al registrar en la nube.");
-      }
-    };
+      db.ref('citas').push(nuevaCita)
+        .then(() => alert("¡Cita registrada en la nube con éxito!"))
+        .catch(err => alert("Error al registrar la cita."));
+    });
 
     // --- CONFIGURACIÓN DE HORARIOS ---
     const scheduleForm = document.getElementById('scheduleSettingsForm');
@@ -296,10 +294,9 @@
       renderBlockedDates();
     };
 
-    // --- ESCUCHA DE CITAS EN TIEMPO REAL ---
+    // --- ESCUCHA DE CITAS EN TIEMPO REAL DESDE LA NUBE ---
     function escucharCitasEnTiempoReal() {
-      const citasRef = ref(db, 'citas');
-      onValue(citasRef, (snapshot) => {
+      db.ref('citas').on('value', (snapshot) => {
         const tableBody = document.getElementById('adminCitasTableBody');
         tableBody.innerHTML = '';
         const data = snapshot.val();
@@ -351,10 +348,10 @@
       });
     }
 
-    window.updateEstado = (key, val) => update(ref(db, `citas/${key}`), { estado: val });
-    window.updateTrato = (key, val) => update(ref(db, `citas/${key}`), { tratoCerrado: val });
-    window.updateNotas = (key, val) => update(ref(db, `citas/${key}`), { notasInternas: val });
-    window.eliminarCita = (key) => { if(confirm("¿Eliminar cita?")) remove(ref(db, `citas/${key}`)); };
+    window.updateEstado = (key, val) => db.ref(`citas/${key}`).update({ estado: val });
+    window.updateTrato = (key, val) => db.ref(`citas/${key}`).update({ tratoCerrado: val });
+    window.updateNotas = (key, val) => db.ref(`citas/${key}`).update({ notasInternas: val });
+    window.eliminarCita = (key) => { if(confirm("¿Eliminar esta cita?")) db.ref(`citas/${key}`).remove(); };
   </script>
 </body>
 </html>
