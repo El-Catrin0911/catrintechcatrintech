@@ -209,7 +209,6 @@
         <h2>Agenda tu Cita</h2>
         <p>Selecciona la fecha y hora que prefieras para ponernos en marcha.</p>
         
-        <!-- AVISO DINÁMICO DE HORARIOS DISPONIBLES -->
         <div id="availabilityNotice" class="badge" style="background: rgba(79, 70, 229, 0.08); color: var(--primary); font-size: 0.9rem; padding: 0.6rem 1.2rem; border-radius: 8px; margin-top: 1rem;">
           <!-- Se actualiza automáticamente desde JS -->
         </div>
@@ -255,7 +254,6 @@
             </div>
           </div>
 
-          <!-- APARTADO DE ENLACE DE MAPS -->
           <div class="form-group">
             <label for="mapsLink">Ubicación / Link de Google Maps (opcional)</label>
             <input type="url" id="mapsLink" name="mapsLink" placeholder="Ej. https://maps.app.goo.gl/...">
@@ -267,7 +265,7 @@
             <textarea id="mensaje" name="mensaje" rows="3" placeholder="Cuéntanos un poco más sobre lo que necesitas..."></textarea>
           </div>
 
-          <button type="submit" class="btn btn-primary btn-block">Confirmar y Agendar Cita</button>
+          <button type="submit" class="btn btn-primary btn-block">Confirmar Cita e Enviar por WhatsApp</button>
         </form>
 
         <!-- CAJA DE CONFIRMACIÓN -->
@@ -277,7 +275,7 @@
           <p id="confirmationDetails">Gracias por agendar con nosotros.</p>
           
           <button id="btnSendWhatsApp" class="btn btn-whatsapp btn-block" style="margin-bottom: 1rem;">
-            💬 Enviar datos de la cita por WhatsApp
+            💬 Enviar / Reenviar cita por WhatsApp
           </button>
           
           <button id="btnResetForm" class="btn btn-secondary" style="background: var(--dark); color: #fff;">Agendar otra cita</button>
@@ -315,7 +313,7 @@
         <h4>Contacto</h4>
         <ul>
           <li><a href="https://wa.me/527712029400?text=Hola%20TonalliTech,%20necesito%20atenci%C3%B3n%20personalizada." target="_blank" class="btn-whatsapp">WhatsApp Directo</a></li>
-          <li><a href="mailto:contacto@tonallitech.com">atenciontonallitech@gmail.com</a></li>
+          <li><a href="mailto:contacto@tonallitech.com">contacto@tonallitech.com</a></li>
         </ul>
       </div>
     </div>
