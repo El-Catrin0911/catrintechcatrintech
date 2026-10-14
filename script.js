@@ -1,5 +1,22 @@
-document.addEventListener('DOMContentLoaded', () => {
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
+// Configuración de Firebase TonalliTech
+const firebaseConfig = {
+  apiKey: "AIzaSyALRCCnncQw9gna2qO4Ide9BOFLuLWXmdU",
+  authDomain: "tonallitech-51348.firebaseapp.com",
+  databaseURL: "https://tonallitech-51348-default-rtdb.firebaseio.com",
+  projectId: "tonallitech-51348",
+  storageBucket: "tonallitech-51348.firebasestorage.app",
+  messagingSenderId: "879533126682",
+  appId: "1:879533126682:web:c4a4baa7dad6b5e4ba8da3",
+  measurementId: "G-NKQMG6MY7W"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+document.addEventListener('DOMContentLoaded', () => {
   const TELEFONO_WHATSAPP = "527712029400";
 
   const DEFAULT_SETTINGS = {
@@ -8,26 +25,23 @@ document.addEventListener('DOMContentLoaded', () => {
     workDays: [1, 2, 3, 4, 5]
   };
 
-  // --- 1. AVISO DE HORARIO EN FORMULARIO ---
   const availabilityNotice = document.getElementById('availabilityNotice');
   const settings = JSON.parse(localStorage.getItem('tonalliScheduleSettings')) || DEFAULT_SETTINGS;
 
   if (availabilityNotice) {
     const daysNames = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
     const activeDaysNames = settings.workDays.map(d => daysNames[d]).join(', ');
-
     availabilityNotice.innerHTML = `🕒 <strong>Horario de atención:</strong> ${settings.startTime} a ${settings.endTime} hrs (${activeDaysNames || 'Sin días configurados'})`;
   }
 
-  // --- 2. FAQ ACORDEÓN ---
+  // FAQ Acordeón
   document.querySelectorAll('.faq-question').forEach(button => {
     button.addEventListener('click', () => {
-      const faqItem = button.parentElement;
-      faqItem.classList.toggle('active');
+      button.parentElement.classList.toggle('active');
     });
   });
 
-  // --- 3. FORMULARIO DE CITAS MULTIDISPOSITIVO ---
+  // Formulario
   const form = document.getElementById('appointmentForm');
   const confirmationBox = document.getElementById('confirmationBox');
   const confirmationDetails = document.getElementById('confirmationDetails');
@@ -37,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let citaData = {};
 
   if (form) {
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
 
       const nombre = document.getElementById('nombre').value;
@@ -48,28 +62,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const hora = document.getElementById('hora').value;
       const mapsLink = document.getElementById('mapsLink').value;
       const mensaje = document.getElementById('mensaje').value;
-
-      const currentSettings = JSON.parse(localStorage.getItem('tonalliScheduleSettings')) || DEFAULT_SETTINGS;
-      const currentBlockedDates = JSON.parse(localStorage.getItem('tonalliBlockedDates')) || [];
-
-      if (currentBlockedDates.includes(fecha)) {
-        alert('🚫 Lo sentimos, la fecha seleccionada está bloqueada para citas. Por favor elige otro día.');
-        return;
-      }
-
-      const dateParts = fecha.split('-');
-      const selectedDate = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]);
-      const dayOfWeek = selectedDate.getDay();
-
-      if (!currentSettings.workDays.includes(dayOfWeek)) {
-        alert('📅 No atendemos citas en el día de la semana seleccionado. Por favor revisa nuestros días laborales.');
-        return;
-      }
-
-      if (hora < currentSettings.startTime || hora > currentSettings.endTime) {
-        alert(`⏰ La hora seleccionada está fuera de nuestro horario laboral (${currentSettings.startTime} a ${currentSettings.endTime} hrs).`);
-        return;
-      }
 
       citaData = { 
         nombre, 
@@ -82,54 +74,41 @@ document.addEventListener('DOMContentLoaded', () => {
         mensaje,
         estado: "Pendiente",
         tratoCerrado: false,
-        notasInternas: ""
+        notasInternas: "",
+        timestamp: Date.now()
       };
 
-      // Guardar en el dispositivo local por respaldo
-      let citasGuardadas = JSON.parse(localStorage.getItem('tonalliTechCitas')) || [];
-      citasGuardadas.push(citaData);
-      localStorage.setItem('tonalliTechCitas', JSON.stringify(citasGuardadas));
+      try {
+        // Enviar la cita a Firebase en la nube
+        const citasRef = ref(db, 'citas');
+        await push(citasRef, citaData);
 
-      confirmationDetails.innerHTML = `Gracias <strong>${nombre}</strong>, tu cita para <strong>${servicio}</strong> quedó registrada el día <strong>${fecha}</strong> a las <strong>${hora} hrs</strong>.`;
+        confirmationDetails.innerHTML = `Gracias <strong>${nombre}</strong>, tu cita para <strong>${servicio}</strong> quedó registrada el día <strong>${fecha}</strong> a las <strong>${hora} hrs</strong>.`;
 
-      form.classList.add('hidden');
-      confirmationBox.classList.remove('hidden');
+        form.classList.add('hidden');
+        confirmationBox.classList.remove('hidden');
 
-      // ABRIR AUTOMÁTICAMENTE WHATSAPP EN CUALQUIER DISPOSITIVO (CELULAR O PC)
-      enviarCitaPorWhatsApp(citaData);
+        enviarCitaPorWhatsApp(citaData);
+      } catch (error) {
+        console.error("Error al guardar en la nube:", error);
+        alert("Ocurrió un pequeño detalle al conectar con la nube, pero te abriremos WhatsApp para no perder tu cita.");
+        enviarCitaPorWhatsApp(citaData);
+      }
     });
   }
 
   function enviarCitaPorWhatsApp(cita) {
     if (!cita.nombre) return;
-
     const mapsPart = cita.mapsLink ? `\n📍 *Ubicación Maps:* ${cita.mapsLink}` : '';
+    const textoMsg = `Hola *TonalliTech*, acabo de agendar una cita desde su página web:\n\n👤 *Nombre:* ${cita.nombre}\n📧 *Email:* ${cita.email}\n📞 *Teléfono:* ${cita.telefono}\n🛠️ *Servicio:* ${cita.servicio}\n📅 *Fecha:* ${cita.fecha}\n⏰ *Hora:* ${cita.hora} hrs${mapsPart}\n💬 *Detalles:* ${cita.mensaje || 'Sin notas adicionales'}\n\nQuedo a la espera de su confirmación.`;
 
-    const textoMsg = 
-`Hola *TonalliTech*, acabo de agendar una cita desde su página web:
-
-👤 *Nombre:* ${cita.nombre}
-📧 *Email:* ${cita.email}
-📞 *Teléfono:* ${cita.telefono}
-🛠️ *Servicio:* ${cita.servicio}
-📅 *Fecha:* ${cita.fecha}
-⏰ *Hora:* ${cita.hora} hrs${mapsPart}
-💬 *Detalles:* ${cita.mensaje || 'Sin notas adicionales'}
-
-Quedo a la espera de su confirmación.`;
-
-    const url = `https://wa.me/${TELEFONO_WHATSAPP}?text=${encodeURIComponent(textoMsg)}`;
-    window.open(url, '_blank');
+    window.open(`https://wa.me/${TELEFONO_WHATSAPP}?text=${encodeURIComponent(textoMsg)}`, '_blank');
   }
 
-  // --- 4. REENVIAR A WHATSAPP DIRECTO ---
   if (btnSendWhatsApp) {
-    btnSendWhatsApp.addEventListener('click', () => {
-      enviarCitaPorWhatsApp(citaData);
-    });
+    btnSendWhatsApp.addEventListener('click', () => enviarCitaPorWhatsApp(citaData));
   }
 
-  // --- 5. REINICIAR FORMULARIO ---
   if (btnReset) {
     btnReset.addEventListener('click', () => {
       form.reset();
@@ -138,5 +117,4 @@ Quedo a la espera de su confirmación.`;
       form.classList.remove('hidden');
     });
   }
-
 });
