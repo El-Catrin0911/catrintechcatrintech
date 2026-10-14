@@ -1,7 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-// Configuración de Firebase TonalliTech
 const firebaseConfig = {
   apiKey: "AIzaSyALRCCnncQw9gna2qO4Ide9BOFLuLWXmdU",
   authDomain: "tonallitech-51348.firebaseapp.com",
@@ -25,6 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
     workDays: [1, 2, 3, 4, 5]
   };
 
+  // --- AVISO DINÁMICO DE HORARIOS DISPONIBLES ---
   const availabilityNotice = document.getElementById('availabilityNotice');
   const settings = JSON.parse(localStorage.getItem('tonalliScheduleSettings')) || DEFAULT_SETTINGS;
 
@@ -34,14 +34,14 @@ document.addEventListener('DOMContentLoaded', () => {
     availabilityNotice.innerHTML = `🕒 <strong>Horario de atención:</strong> ${settings.startTime} a ${settings.endTime} hrs (${activeDaysNames || 'Sin días configurados'})`;
   }
 
-  // FAQ Acordeón
+  // --- FAQ ACORDEÓN ---
   document.querySelectorAll('.faq-question').forEach(button => {
     button.addEventListener('click', () => {
       button.parentElement.classList.toggle('active');
     });
   });
 
-  // Formulario
+  // --- FORMULARIO DE CITAS CON VALIDACIONES ---
   const form = document.getElementById('appointmentForm');
   const confirmationBox = document.getElementById('confirmationBox');
   const confirmationDetails = document.getElementById('confirmationDetails');
@@ -63,6 +63,31 @@ document.addEventListener('DOMContentLoaded', () => {
       const mapsLink = document.getElementById('mapsLink').value;
       const mensaje = document.getElementById('mensaje').value;
 
+      const currentSettings = JSON.parse(localStorage.getItem('tonalliScheduleSettings')) || DEFAULT_SETTINGS;
+      const currentBlockedDates = JSON.parse(localStorage.getItem('tonalliBlockedDates')) || [];
+
+      // Validar si la fecha está bloqueada
+      if (currentBlockedDates.includes(fecha)) {
+        alert('🚫 Lo sentimos, la fecha seleccionada está bloqueada. Por favor elige otro día.');
+        return;
+      }
+
+      // Validar día de la semana
+      const dateParts = fecha.split('-');
+      const selectedDate = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]);
+      const dayOfWeek = selectedDate.getDay();
+
+      if (!currentSettings.workDays.includes(dayOfWeek)) {
+        alert('📅 No atendemos citas en el día de la semana seleccionado. Por favor revisa nuestros días laborales.');
+        return;
+      }
+
+      // Validar hora de atención
+      if (hora < currentSettings.startTime || hora > currentSettings.endTime) {
+        alert(`⏰ La hora seleccionada está fuera de nuestro horario laboral (${currentSettings.startTime} a ${currentSettings.endTime} hrs).`);
+        return;
+      }
+
       citaData = { 
         nombre, 
         email, 
@@ -79,9 +104,14 @@ document.addEventListener('DOMContentLoaded', () => {
       };
 
       try {
-        // Enviar la cita a Firebase en la nube
+        // Enviar a la nube en tiempo real (Firebase)
         const citasRef = ref(db, 'citas');
         await push(citasRef, citaData);
+
+        // Copia de respaldo local
+        let citasGuardadas = JSON.parse(localStorage.getItem('tonalliTechCitas')) || [];
+        citasGuardadas.push(citaData);
+        localStorage.setItem('tonalliTechCitas', JSON.stringify(citasGuardadas));
 
         confirmationDetails.innerHTML = `Gracias <strong>${nombre}</strong>, tu cita para <strong>${servicio}</strong> quedó registrada el día <strong>${fecha}</strong> a las <strong>${hora} hrs</strong>.`;
 
@@ -90,8 +120,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         enviarCitaPorWhatsApp(citaData);
       } catch (error) {
-        console.error("Error al guardar en la nube:", error);
-        alert("Ocurrió un pequeño detalle al conectar con la nube, pero te abriremos WhatsApp para no perder tu cita.");
+        console.error("Error conectando con la nube:", error);
+        alert("Hubo un detalle de red, pero te abriremos WhatsApp para confirmar tu cita directamente.");
         enviarCitaPorWhatsApp(citaData);
       }
     });
