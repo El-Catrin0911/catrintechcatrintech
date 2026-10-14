@@ -1,13 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-  // NÚMERO DE WHATSAPP DE TONALLITECH
   const TELEFONO_WHATSAPP = "527712029400";
 
-  // CONFIGURACIÓN POR DEFECTO DE HORARIOS
   const DEFAULT_SETTINGS = {
     startTime: "09:00",
     endTime: "18:00",
-    workDays: [1, 2, 3, 4, 5] // Lunes a Viernes
+    workDays: [1, 2, 3, 4, 5]
   };
 
   // --- 1. AVISO DE HORARIO EN FORMULARIO ---
@@ -29,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // --- 3. FORMULARIO DE CITAS ---
+  // --- 3. FORMULARIO DE CITAS MULTIDISPOSITIVO ---
   const form = document.getElementById('appointmentForm');
   const confirmationBox = document.getElementById('confirmationBox');
   const confirmationDetails = document.getElementById('confirmationDetails');
@@ -54,7 +52,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const currentSettings = JSON.parse(localStorage.getItem('tonalliScheduleSettings')) || DEFAULT_SETTINGS;
       const currentBlockedDates = JSON.parse(localStorage.getItem('tonalliBlockedDates')) || [];
 
-      // Validaciones de horario
       if (currentBlockedDates.includes(fecha)) {
         alert('🚫 Lo sentimos, la fecha seleccionada está bloqueada para citas. Por favor elige otro día.');
         return;
@@ -74,7 +71,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
-      // Estructura de la Cita con Maps y campos CRM
       citaData = { 
         nombre, 
         email, 
@@ -89,40 +85,47 @@ document.addEventListener('DOMContentLoaded', () => {
         notasInternas: ""
       };
 
-      // Guardar en localStorage
+      // Guardar en el dispositivo local por respaldo
       let citasGuardadas = JSON.parse(localStorage.getItem('tonalliTechCitas')) || [];
       citasGuardadas.push(citaData);
       localStorage.setItem('tonalliTechCitas', JSON.stringify(citasGuardadas));
 
-      confirmationDetails.innerHTML = `Gracias <strong>${nombre}</strong>, tu cita para <strong>${servicio}</strong> quedó agendada el día <strong>${fecha}</strong> a las <strong>${hora} hrs</strong>.`;
+      confirmationDetails.innerHTML = `Gracias <strong>${nombre}</strong>, tu cita para <strong>${servicio}</strong> quedó registrada el día <strong>${fecha}</strong> a las <strong>${hora} hrs</strong>.`;
 
       form.classList.add('hidden');
       confirmationBox.classList.remove('hidden');
+
+      // ABRIR AUTOMÁTICAMENTE WHATSAPP EN CUALQUIER DISPOSITIVO (CELULAR O PC)
+      enviarCitaPorWhatsApp(citaData);
     });
   }
 
-  // --- 4. ENVÍO A WHATSAPP DIRECTO ---
-  if (btnSendWhatsApp) {
-    btnSendWhatsApp.addEventListener('click', () => {
-      if (!citaData.nombre) return;
+  function enviarCitaPorWhatsApp(cita) {
+    if (!cita.nombre) return;
 
-      const mapsPart = citaData.mapsLink ? `\n📍 *Ubicación Maps:* ${citaData.mapsLink}` : '';
+    const mapsPart = cita.mapsLink ? `\n📍 *Ubicación Maps:* ${cita.mapsLink}` : '';
 
-      const textoMsg = 
-`Hola *TonalliTech*, acabo de agendar una cita en su página web:
+    const textoMsg = 
+`Hola *TonalliTech*, acabo de agendar una cita desde su página web:
 
-👤 *Nombre:* ${citaData.nombre}
-📧 *Email:* ${citaData.email}
-📞 *Teléfono:* ${citaData.telefono}
-🛠️ *Servicio:* ${citaData.servicio}
-📅 *Fecha:* ${citaData.fecha}
-⏰ *Hora:* ${citaData.hora} hrs${mapsPart}
-💬 *Detalles:* ${citaData.mensaje || 'Sin notas adicionales'}
+👤 *Nombre:* ${cita.nombre}
+📧 *Email:* ${cita.email}
+📞 *Teléfono:* ${cita.telefono}
+🛠️ *Servicio:* ${cita.servicio}
+📅 *Fecha:* ${cita.fecha}
+⏰ *Hora:* ${cita.hora} hrs${mapsPart}
+💬 *Detalles:* ${cita.mensaje || 'Sin notas adicionales'}
 
 Quedo a la espera de su confirmación.`;
 
-      const url = `https://wa.me/${TELEFONO_WHATSAPP}?text=${encodeURIComponent(textoMsg)}`;
-      window.open(url, '_blank');
+    const url = `https://wa.me/${TELEFONO_WHATSAPP}?text=${encodeURIComponent(textoMsg)}`;
+    window.open(url, '_blank');
+  }
+
+  // --- 4. REENVIAR A WHATSAPP DIRECTO ---
+  if (btnSendWhatsApp) {
+    btnSendWhatsApp.addEventListener('click', () => {
+      enviarCitaPorWhatsApp(citaData);
     });
   }
 
