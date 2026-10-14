@@ -10,10 +10,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
-
-  <!-- SDKs FIREBASE (COMPAT) -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 </head>
 <body style="background-color: var(--bg-light);">
 
@@ -140,7 +136,7 @@
                 </tr>
               </thead>
               <tbody id="adminCitasTableBody">
-                <!-- Citas cargadas desde la nube -->
+                <!-- Citas en tiempo real -->
               </tbody>
             </table>
           </div>
@@ -149,7 +145,11 @@
     </section>
   </div>
 
-  <script>
+  <!-- SCRIPT ADMIN COMO MÓDULO -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getDatabase, ref, onValue, update, remove, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
     const firebaseConfig = {
       apiKey: "AIzaSyALRCCnncQw9gna2qO4Ide9BOFLuLWXmdU",
       authDomain: "tonallitech-51348.firebaseapp.com",
@@ -160,10 +160,8 @@
       appId: "1:879533126682:web:c4a4baa7dad6b5e4ba8da3"
     };
 
-    if (!firebase.apps.length) {
-      firebase.initializeApp(firebaseConfig);
-    }
-    const db = firebase.database();
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
 
     const ADMIN_PASSWORD = "admin123";
     const loginModal = document.getElementById('loginModal');
@@ -197,8 +195,7 @@
       escucharCitasEnTiempoReal();
     }
 
-    // --- REGISTRO MANUAL WHATSAPP ---
-    document.getElementById('btnManualCita').addEventListener('click', () => {
+    document.getElementById('btnManualCita').addEventListener('click', async () => {
       const nombre = prompt("Nombre del cliente:");
       if (!nombre) return;
       const telefono = prompt("Teléfono / WhatsApp:");
@@ -222,12 +219,14 @@
         timestamp: Date.now()
       };
 
-      db.ref('citas').push(nuevaCita)
-        .then(() => alert("¡Cita registrada en la nube con éxito!"))
-        .catch(err => alert("Error al registrar la cita."));
+      try {
+        await push(ref(db, 'citas'), nuevaCita);
+        alert("¡Cita registrada en la nube con éxito!");
+      } catch (err) {
+        alert("Error al registrar la cita.");
+      }
     });
 
-    // --- CONFIGURACIÓN DE HORARIOS ---
     const scheduleForm = document.getElementById('scheduleSettingsForm');
 
     function loadScheduleSettings() {
@@ -258,7 +257,6 @@
       alert('¡Configuración de horario guardada con éxito!');
     });
 
-    // --- FECHAS BLOQUEADAS ---
     let blockedDates = JSON.parse(localStorage.getItem('tonalliBlockedDates')) || [];
     const blockedDatesList = document.getElementById('blockedDatesList');
     const btnBlockDate = document.getElementById('btnBlockDate');
@@ -294,9 +292,9 @@
       renderBlockedDates();
     };
 
-    // --- ESCUCHA DE CITAS EN TIEMPO REAL DESDE LA NUBE ---
     function escucharCitasEnTiempoReal() {
-      db.ref('citas').on('value', (snapshot) => {
+      const citasRef = ref(db, 'citas');
+      onValue(citasRef, (snapshot) => {
         const tableBody = document.getElementById('adminCitasTableBody');
         tableBody.innerHTML = '';
         const data = snapshot.val();
@@ -348,10 +346,10 @@
       });
     }
 
-    window.updateEstado = (key, val) => db.ref(`citas/${key}`).update({ estado: val });
-    window.updateTrato = (key, val) => db.ref(`citas/${key}`).update({ tratoCerrado: val });
-    window.updateNotas = (key, val) => db.ref(`citas/${key}`).update({ notasInternas: val });
-    window.eliminarCita = (key) => { if(confirm("¿Eliminar esta cita?")) db.ref(`citas/${key}`).remove(); };
+    window.updateEstado = (key, val) => update(ref(db, `citas/${key}`), { estado: val });
+    window.updateTrato = (key, val) => update(ref(db, `citas/${key}`), { tratoCerrado: val });
+    window.updateNotas = (key, val) => update(ref(db, `citas/${key}`), { notasInternas: val });
+    window.eliminarCita = (key) => { if(confirm("¿Eliminar esta cita?")) remove(ref(db, `citas/${key}`)); };
   </script>
 </body>
 </html>
