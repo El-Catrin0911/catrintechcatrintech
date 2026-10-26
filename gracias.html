@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>¡Gracias por tu compra! - TonalliTech</title>
+  
+  <link rel="icon" type="image/png" href="logo-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body style="background-color: var(--bg-light); display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 1.5rem;">
+
+  <div class="appointment-card" style="max-width: 550px; text-align: center; border: 1px solid rgba(99, 102, 241, 0.2); width: 100%;">
+    <div style="font-size: 3.5rem; margin-bottom: 0.5rem;">🎉</div>
+    
+    <span class="badge" style="background: rgba(16, 185, 129, 0.1); color: #10b981; margin-bottom: 1rem;">Pago Confirmado</span>
+    
+    <h1 style="font-size: 1.8rem; color: var(--dark); margin-bottom: 0.5rem;">¡Gracias por tu suscripción!</h1>
+    <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem;">
+      Tu pago se ha procesado con éxito. Ya puedes descargar la versión ejecutable de tu software y comenzar a utilizarlo.
+    </p>
+
+    <!-- CAJA DE DESCARGA DEL EXECUTABLE -->
+    <div style="background: var(--bg-alt); padding: 1.2rem; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 1.5rem; text-align: left;">
+      <h3 style="font-size: 1.05rem; color: var(--dark); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+        💻 Paso 1: Descarga el Instalador
+      </h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+        Haz clic en el botón para bajar la aplicación ejecutable (.exe) directa para Windows.
+      </p>
+      
+      <!-- Reemplaza el href con el link directo a tu ejecutable o release en GitHub/Drive -->
+      <a id="downloadBtn" href="https://github.com/tu-usuario/tu-repo/releases/download/v1.0/TonalliGym.exe" target="_blank" class="btn btn-primary btn-block" style="text-align: center; text-decoration: none;">
+        ⬇️ Descargar TonalliGym (.exe)
+      </a>
+    </div>
+
+    <!-- INSTRUCCIONES DE ACTIVACIÓN -->
+    <div style="background: rgba(99, 102, 241, 0.05); padding: 1.2rem; border-radius: 12px; border: 1px solid rgba(99, 102, 241, 0.2); margin-bottom: 1.5rem; text-align: left;">
+      <h3 style="font-size: 1.05rem; color: var(--primary); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+        🔑 Paso 2: Activa tu Licencia
+      </h3>
+      <p style="font-size: 0.85rem; color: var(--dark-light); line-height: 1.6;">
+        Abre el programa descargado e ingresa tu clave de licencia asignada. Si aún no cuentas con ella o requieres asistencia con la instalación inicial, contáctanos directamente a nuestro soporte:
+      </p>
+    </div>
+
+    <a href="https://wa.me/527712029400?text=Hola%20TonalliTech,%20acabo%20de%20realizar%20mi%20pago%20de%20suscripci%C3%B3n%20para%20TonalliGym%20y%20necesito%20mi%20clave%20de%20activaci%C3%B3n." target="_blank" class="btn btn-whatsapp btn-block" style="text-align: center; text-decoration: none; margin-bottom: 1rem;">
+      💬 Solicitar Clave por WhatsApp
+    </a>
+
+    <a href="index.html" style="font-size: 0.85rem; color: var(--text-muted); text-decoration: none;">← Volver al inicio de TonalliTech</a>
+  </div>
+
+</body>
+</html>
